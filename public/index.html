@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Presentación</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .svg-container {
+            width: 100%;
+            min-height: 400px;
+            border: 1px solid #eee;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background: #e9ecef;
+        }
+
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        .timer {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        /* Estilos para el panel de control avanzado */
+        .advanced-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .select-control {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background: white;
+        }
+
+        .range-control {
+            width: 100%;
+        }
+
+        .zoom-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .zoom-value {
+            min-width: 3rem;
+            text-align: center;
+        }
+
+        /* Toggle para modo oscuro */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Estilos para modo oscuro */
+        [data-theme="dark"] {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        [data-theme="dark"] .container {
+            background: #2d2d2d;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        [data-theme="dark"] .controls,
+        [data-theme="dark"] .advanced-controls {
+            background: #333;
+        }
+
+        [data-theme="dark"] .btn:hover {
+            background: #444;
+        }
+
+        [data-theme="dark"] .select-control {
+            background: #333;
+            border-color: #444;
+            color: #fff;
+        }
+
+        [data-theme="dark"] .file-drop {
+            border-color: #444;
+            color: #fff;
+        }
+
+        [data-theme="dark"] .progress-bar {
+            background: #333;
+        }
+
+        .navigation-slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4299e1;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-drop {
+            border: 2px dashed #ccc;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .file-drop:hover {
+            border-color: #4299e1;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="fileDropZone" class="file-drop">
+            <p>Arrastra aquí tus archivos SVG o haz clic para seleccionarlos</p>
+            <input type="file" id="fileInput" class="file-input" multiple accept=".svg">
+        </div>
+
+        <div class="svg-container" id="svgContainer"></div>
+
+        <div class="controls">
+            <button class="btn" id="resetBtn" title="Reiniciar">
+                <i data-feather="refresh-cw"></i>
+            </button>
+            <button class="btn" id="prevBtn" title="Anterior">
+                <i data-feather="skip-back"></i>
+            </button>
+            <button class="btn" id="playPauseBtn" title="Reproducir/Pausar">
+                <i data-feather="play"></i>
+            </button>
+            <button class="btn" id="nextBtn" title="Siguiente">
+                <i data-feather="skip-forward"></i>
+            </button>
+        </div>
+
+        <div class="advanced-controls">
+            <!-- Control de velocidad de voz -->
+            <div class="control-group">
+                <label for="speechRate">Velocidad de voz</label>
+                <select id="speechRate" class="select-control">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>1x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+            </div>
+
+            <!-- Control de volumen -->
+            <div class="control-group">
+                <label for="volume">Volumen</label>
+                <input type="range" id="volume" class="range-control" min="0" max="1" step="0.1" value="1">
+            </div>
+
+            <!-- Control de zoom -->
+            <div class="control-group">
+                <label>Zoom</label>
+                <div class="zoom-controls">
+                    <button class="btn" id="zoomOut" title="Reducir">
+                        <i data-feather="minus"></i>
+                    </button>
+                    <span id="zoomValue" class="zoom-value">100%</span>
+                    <button class="btn" id="zoomIn" title="Aumentar">
+                        <i data-feather="plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navegación rápida -->
+            <div class="control-group">
+                <label for="slideSelect">Ir a Slide/Frame</label>
+                <select id="slideSelect" class="select-control">
+                    <option value="">Seleccionar...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-info">
+                <span id="slideInfo">Slide 0/0 - Frame 0</span>
+                <span id="timer" class="timer">00:00:00</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de cambio de tema -->
+    <button class="theme-toggle" id="themeToggle" title="Cambiar tema">
+        <i data-feather="sun"></i>
+    </button>
+
+    <script>
+        // Inicializar iconos
+        feather.replace();
+
+        // Variables globales
+        let svgFiles = [];
+        let currentSlide = 1;
+        let currentFrame = 1;
+        let isPlaying = false;
+        let currentTime = 0;
+        let totalTime = 0;
+        let metadata = null;
+        let timerInterval = null;
+        let currentZoom = 100;
+        let isDarkMode = false;
+        let currentVolume = 1;
+        let currentSpeechRate = 1;
+
+        // Referencias a elementos DOM
+        const svgContainer = document.getElementById('svgContainer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressFill = document.getElementById('progressFill');
+        const slideInfo = document.getElementById('slideInfo');
+        const timerDisplay = document.getElementById('timer');
+        const fileDropZone = document.getElementById('fileDropZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        // Referencias a nuevos controles
+        const speechRateSelect = document.getElementById('speechRate');
+        const volumeControl = document.getElementById('volume');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const zoomValue = document.getElementById('zoomValue');
+        const slideSelect = document.getElementById('slideSelect');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Funciones de manejo de archivos
+        fileDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDropZone.style.borderColor = '#4299e1';
+        });
+
+        fileDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileDropZone.style.borderColor = '#ccc';
+        });
+
+        fileDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropZone.style.borderColor = '#ccc';
+            const files = Array.from(e.dataTransfer.files).filter(file => file.name.endsWith('.svg'));
+            handleFiles(files);
+        });
+
+        fileDropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files).filter(file => file.name.endsWith('.svg'));
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            svgFiles = files;
+            if (svgFiles.length > 0) {
+                // Actualizar el selector de slides
+                updateSlideSelector();
+                resetPresentation();
+                loadCurrentFrame();
+            }
+        }
+
+        function updateSlideSelector() {
+            slideSelect.innerHTML = '<option value="">Seleccionar...</option>';
+            svgFiles.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.name;
+                option.textContent = file.name.replace('.svg', '');
+                slideSelect.appendChild(option);
+            });
+        }
+
+        // Funciones auxiliares
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function extractMetadata(svgContent) {
+            const metadataRegex = /<!--\s*Etapa\s*(\d+):\s*(\d+)-(\d+)s\s*\|\s*Speech:\s*"([^"]+)"\s*\|\s*Siguiente:\s*([^-]+)/;
+            const match = svgContent.match(metadataRegex);
+            
+            if (match) {
+                return {
+                    etapa: parseInt(match[1]),
+                    startTime: parseInt(match[2]),
+                    endTime: parseInt(match[3]),
+                    speech: match[4],
+                    siguiente: match[5].trim()
+                };
+            }
+            return null;
+        }
+
+        // Funciones de control de reproducción
+        async function loadCurrentFrame() {
+            const currentFile = svgFiles.find(file => 
+                file.name === `slide${String(currentSlide).padStart(2, '0')}_etapa${currentFrame}.svg`
+            );
+
+            if (currentFile) {
+                const content = await currentFile.text();
+                svgContainer.innerHTML = content;
+                metadata = extractMetadata(content);
+                updateDisplay();
+                
+                if (isPlaying && metadata) {
+                    speak(metadata.speech);
+                }
+            }
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = currentSpeechRate;
+                utterance.volume = currentVolume;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function updateDisplay() {
+            slideInfo.textContent = `Slide ${currentSlide}/${svgFiles.length} - Frame ${currentFrame}`;
+            if (metadata) {
+                progressFill.style.width = `${(currentTime / metadata.endTime) * 100}%`;
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (isPlaying && metadata) {
+                    currentTime++;
+                    totalTime++;
+                    timerDisplay.textContent = formatTime(totalTime);
+                    updateDisplay();
+
+                    if (currentTime >= metadata.endTime) {
+                        if (metadata.siguiente.toLowerCase() === 'no') {
+                            const nextSlideExists = svgFiles.some(file => 
+                                file.name.startsWith(`slide${String(currentSlide + 1).padStart(2, '0')}_`)
+                            );
+                            
+                            if (nextSlideExists) {
+                                currentSlide++;
+                                currentFrame = 1;
+                            } else {
+                                pausePresentation();
+                            }
+                        } else {
+                            currentFrame = parseInt(metadata.siguiente);
+                        }
+                        currentTime = 0;
+                        loadCurrentFrame();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Funciones de control de zoom
+        function updateZoom(newZoom) {
+            currentZoom = Math.max(25, Math.min(200, newZoom));
+            zoomValue.textContent = `${currentZoom}%`;
+            svgContainer.style.transform = `scale(${currentZoom / 100})`;
+            svgContainer.style.transformOrigin = 'top left';
+        }
+
+        // Funciones de tema
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            themeToggle.innerHTML = isDarkMode ? 
+                '<i data-feather="moon"></i>' : 
+                '<i data-feather="sun"></i>';
+            feather.replace();
+        }
+
+        // Event Listeners para los nuevos controles
+        speechRateSelect.addEventListener('change', (e) => {
+            currentSpeechRate = parseFloat(e.target.value);
+        });
+
+        volumeControl.addEventListener('input', (e) => {
+            currentVolume = parseFloat(e.target.value);
+        });
+
+        zoomInBtn.addEventListener('click', () => updateZoom(currentZoom + 25));
+        zoomOutBtn.addEventListener('click', () => updateZoom(currentZoom - 25));
+
+        slideSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                const [slideStr, frameStr] = e.target.value.match(/slide(\d+)_etapa(\d+)/);
+                currentSlide = parseInt(slideStr);
+                currentFrame = parseInt(frameStr);
+                currentTime = 0;
+                loadCurrentFrame();
+            }
+        });
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Event Listeners para los controles originales
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pausePresentation();
+            } else {
+                startPresentation();
+            }
+        });
+
+        resetBtn.addEventListener('click', resetPresentation);
+        prevBtn.addEventListener('click', previousFrame);
+        nextBtn.addEventListener('click', nextFrame);
+
+        function startPresentation() {
+            isPlaying = true;
+            playPauseBtn.innerHTML = '<i data-feather="pause"></i>';
+            feather.replace();
+            startTimer();
+            if (metadata) {
+                speak(metadata.speech);
+            }
+        }
+
+        function pausePresentation() {
+            isPlaying = false;
+            playPauseBtn.innerHTML = '<i data-feather="play"></i>';
+            feather.replace();
+            if (timerInterval) clearInterval(timerInterval);
+            window.speechSynthesis.cancel();
+        }
+
+        function resetPresentation() {
+            currentSlide = 1;
+            currentFrame = 1;
+            currentTime = 0;
+            totalTime = 0;
+            pausePresentation();
+            loadCurrentFrame();
+            timerDisplay.textContent = '00:00:00';
+        }
+
+        function previousFrame() {
+            if (currentFrame > 1) {
+                currentFrame--;
+            } else if (currentSlide > 1) {
+                currentSlide--;
+                // Encontrar el último frame de la slide anterior
+                const previousSlideFrames = svgFiles.filter(file => 
+                    file.name.startsWith(`slide${String(currentSlide).padStart(2, '0')}_`)
+                );
+                currentFrame = previousSlideFrames.length;
+            }
+            currentTime = 0;
+            window.speechSynthesis.cancel();
+            loadCurrentFrame();
+        }
+
+        function nextFrame() {
+            if (metadata && metadata.siguiente.toLowerCase() !== 'no') {
+                currentFrame = parseInt(metadata.siguiente);
+            } else {
+                const nextSlideExists = svgFiles.some(file => 
+                    file.name.startsWith(`slide${String(currentSlide + 1).padStart(2, '0')}_`)
+                );
+                
+                if (nextSlideExists) {
+                    currentSlide++;
+                    currentFrame = 1;
+                }
+            }
+            currentTime = 0;
+            window.speechSynthesis.cancel();
+            loadCurrentFrame();
+        }
+    </script>
+</body>
+</html>
