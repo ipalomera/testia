@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>HeyGen Streaming Avatar</title>
+    <style>
+        * {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .svg-container {
+            width: 100%;
+            height: 65vh;
+            border: 2px solid #ccc;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .footer-container {
+            display: flex;
+            width: 100%;
+            margin-top: 20px;
+            min-height: 220px;
+        }
+
+        .avatar-space {
+            width: 40%;
+            min-height: 220px;
+            position: relative;
+        }
+
+        .avatar-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 4px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .avatar-controls button {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .controls-container {
+            width: 60%;
+            padding-left: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: flex-start;
+            gap: 8px;
+            margin-bottom: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .controls button:hover {
+            background: #e0e0e0;
+        }
+
+        .advanced-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-controls button {
+            padding: 4px 8px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .zoom-value {
+            min-width: 50px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .progress-container {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        /* Iconos personalizados para el botón de silencio */
+        .mute-icon, .unmute-icon {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="svgContainer" class="svg-container">
+        </div>
+
+        <div class="footer-container">
+            <div class="avatar-space">
+                <!-- Controles del avatar -->
+                <div class="avatar-controls">
+                    <button id="muteButton" title="Silenciar/Activar sonido">
+                        <svg class="unmute-icon" viewBox="0 0 24 24">
+                            <path d="M12 5v14l-7-7H1V12h4l7-7z M15.5 8.5a5 5 0 0 1 0 7M18 6a8 8 0 0 1 0 12"/>
+                        </svg>
+                        <svg class="mute-icon" viewBox="0 0 24 24" style="display: none;">
+                            <path d="M12 5v14l-7-7H1V12h4l7-7z M15 9l6 6 M21 9l-6 6"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- El avatar de Heygen se insertará aquí -->
+            </div>
+            
+            <div class="controls-container">
+                <div class="controls">
+                    <button id="playPauseBtn">▶</button>
+                    <button id="stopBtn">■</button>
+                    <button id="prevBtn">←</button>
+                    <button id="nextBtn">→</button>
+                </div>
+
+                <div class="advanced-controls">
+                    <div class="control-group">
+                        <label>Velocidad de voz</label>
+                        <select id="speedSelect">
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>1x</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2x</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Volumen</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="100">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Zoom</label>
+                        <div class="zoom-controls">
+                            <button id="zoomOutBtn">-</button>
+                            <span id="zoomValue" class="zoom-value">100%</span>
+                            <button id="zoomInBtn">+</button>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Ir a Slide/Frame</label>
+                        <select id="slideSelect">
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span id="slideInfo">Slide 0/0 - Frame 0</span>
+                        <span id="timer" class="timer">00:00:00</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Lista de archivos SVG a cargar
+            const svgFiles = ['slide21_etapa1.svg', 'slide21_etapa2.svg', 'slide21_etapa3.svg'];
+            const svgContainer = document.getElementById('svgContainer');
+            let currentSvgIndex = 0;
+            let svgContents = [];
+
+            // Control de silencio del avatar
+            const muteButton = document.getElementById('muteButton');
+            const muteIcon = document.querySelector('.mute-icon');
+            const unmuteIcon = document.querySelector('.unmute-icon');
+            let isMuted = false;
+
+            muteButton.addEventListener('click', () => {
+                isMuted = !isMuted;
+                const iframe = document.querySelector('#heygen-streaming-container iframe');
+                if (iframe) {
+                    iframe.contentWindow.postMessage({ type: 'streaming-embed', action: isMuted ? 'mute' : 'unmute' }, '*');
+                    muteIcon.style.display = isMuted ? 'block' : 'none';
+                    unmuteIcon.style.display = isMuted ? 'none' : 'block';
+                }
+            });
+
+            // Función para cargar los archivos SVG
+            async function loadSvgFiles() {
+                try {
+                    for (const file of svgFiles) {
+                        const response = await fetch(file);
+                        if (!response.ok) throw new Error(`Error cargando ${file}`);
+                        const svgContent = await response.text();
+                        svgContents.push(svgContent);
+                    }
+                    if (svgContents.length > 0) {
+                        displaySvg(0);
+                        updateSlideSelect();
+                    }
+                } catch (error) {
+                    console.error('Error cargando archivos SVG:', error);
+                    svgContainer.innerHTML = '<p>Error cargando los archivos SVG</p>';
+                }
+            }
+
+            // Resto de funciones para el manejo de SVGs...
+            [... código existente de las funciones displaySvg, updateSlideSelect, etc ...]
+
+            // Cargar los archivos SVG al iniciar
+            await loadSvgFiles();
+        });
+    </script>
+
+    <!-- Script del avatar de Heygen -->
+    <script>
+    !function(window){const host="https://labs.heygen.com",url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJXYXluZV8yMDI0MDcxMSIsInByZXZpZXdJ%0D%0AbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3YzL2EzZmRiMGM2NTIwMjRmNzk5%0D%0AODRhYWVjMTFlYmYyNjk0XzM0MzUwL3ByZXZpZXdfdGFyZ2V0LndlYnAiLCJuZWVkUmVtb3ZlQmFj%0D%0Aa2dyb3VuZCI6ZmFsc2UsImtub3dsZWRnZUJhc2VJZCI6IjhhNGYzNWFiMTgzNTQzYzY4NjlkYzk0%0D%0AYjAyMzJkY2JhIiwidXNlcm5hbWUiOiJmZTlkMjg0ZDYxN2I0MDQwOTIyMzM5YjkyMjMwNWM5YSJ9&inIFrame=1",clientWidth=document.body.clientWidth,wrapDiv=document.createElement("div");wrapDiv.id="heygen-streaming-embed";const container=document.createElement("div");container.id="heygen-streaming-container";const stylesheet=document.createElement("style");stylesheet.innerHTML=`\n #heygen-streaming-embed {\n z-index: 9999;\n position: static;\n width: 100%;\n height: 100%;\n border-radius: 8px;\n border: 2px solid #fff;\n box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);\n transition: all linear 0.1s;\n overflow: hidden;\n opacity: 1;\n visibility: visible;\n }\n #heygen-streaming-container {\n width: 100%;\n height: 100%;\n }\n #heygen-streaming-container iframe {\n width: 100%;\n height: 100%;\n border: 0;\n }\n `;const iframe=document.createElement("iframe");iframe.allowFullscreen=!1,iframe.title="Streaming Embed",iframe.role="dialog",iframe.allow="microphone",iframe.src=url;container.appendChild(iframe),wrapDiv.appendChild(stylesheet),wrapDiv.appendChild(container),document.querySelector('.avatar-space').appendChild(wrapDiv)}(window);
+    </script>
+</body>
+</html>
