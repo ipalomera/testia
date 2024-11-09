@@ -1,0 +1,96 @@
+<!-- Etapa 3: 15-20s - "HubSpot como CRM integral y Meta Business Suite para redes sociales..." - Siguiente: Etapa 4 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900">
+    <defs>
+        <linearGradient id="gradMain" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:rgb(81,160,79);stop-opacity:1" />
+            <stop offset="100%" style="stop-color:rgb(81,160,79);stop-opacity:0.8" />
+        </linearGradient>
+        <linearGradient id="gradSecond" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:rgb(79,160,193);stop-opacity:1" />
+            <stop offset="100%" style="stop-color:rgb(79,160,193);stop-opacity:0.8" />
+        </linearGradient>
+        <linearGradient id="gradThird" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:rgb(193,130,173);stop-opacity:1" />
+            <stop offset="100%" style="stop-color:rgb(193,130,173);stop-opacity:0.8" />
+        </linearGradient>
+    </defs>
+
+    <!-- Título y elementos previos -->
+    <text x="700" y="40" text-anchor="middle" fill="rgb(31,62,84)" 
+          font-family="Arial" font-size="24" font-weight="bold">
+        Stack Tecnológico y Marco Metodológico
+    </text>
+
+    <g transform="translate(30,80)">
+        <text x="0" y="0" fill="rgb(31,62,84)" font-family="Arial" font-size="20" font-weight="bold">
+            Stack Tecnológico
+        </text>
+    </g>
+
+    <!-- Analytics & Data -->
+    <g transform="translate(50,120)">
+        <rect width="300" height="320" rx="10" fill="url(#gradSecond)"/>
+        <text x="20" y="40" fill="white" font-family="Arial" font-size="18" font-weight="bold">
+            Analytics &amp; Data
+        </text>
+        
+        <text x="20" y="80" fill="white" font-family="Arial" font-size="14" font-weight="bold">Core Analytics:</text>
+        <text x="40" y="105" fill="white" font-family="Arial" font-size="14">• Google Analytics 4</text>
+        <text x="40" y="130" fill="white" font-family="Arial" font-size="14">• Google Tag Manager</text>
+        <text x="40" y="155" fill="white" font-family="Arial" font-size="14">• Data Studio</text>
+
+        <text x="20" y="195" fill="white" font-family="Arial" font-size="14" font-weight="bold">SEO Tools:</text>
+        <text x="40" y="220" fill="white" font-family="Arial" font-size="14">• SEMrush</text>
+        <text x="40" y="245" fill="white" font-family="Arial" font-size="14">• Screaming Frog</text>
+        <text x="40" y="270" fill="white" font-family="Arial" font-size="14">• Google Search Console</text>
+    </g>
+
+    <!-- Marketing Stack -->
+    <g transform="translate(370,120)">
+        <rect width="300" height="320" rx="10" fill="url(#gradThird)"/>
+        <text x="20" y="40" fill="white" font-family="Arial" font-size="18" font-weight="bold">
+            Marketing Stack
+        </text>
+
+        <text x="20" y="80" fill="white" font-family="Arial" font-size="14" font-weight="bold">Paid Media:</text>
+        <text x="40" y="105" fill="white" font-family="Arial" font-size="14">• Meta Ads Manager</text>
+        <text x="40" y="130" fill="white" font-family="Arial" font-size="14">• Google Ads</text>
+        <text x="40" y="155" fill="white" font-family="Arial" font-size="14">• Display &amp; Video 360</text>
+
+        <text x="20" y="195" fill="white" font-family="Arial" font-size="14" font-weight="bold">Social Media:</text>
+        <text x="40" y="220" fill="white" font-family="Arial" font-size="14">• Meta Business Suite</text>
+        <text x="40" y="245" fill="white" font-family="Arial" font-size="14">• Later</text>
+        <text x="40" y="270" fill="white" font-family="Arial" font-size="14">• Fanpage Karma</text>
+    </g>
+
+    <!-- Sales & CRM -->
+    <g transform="translate(690,120)">
+        <rect width="300" height="320" rx="10" fill="url(#gradMain)"/>
+        <text x="20" y="40" fill="white" font-family="Arial" font-size="18" font-weight="bold">
+            Sales &amp; CRM
+        </text>
+
+        <text x="20" y="80" fill="white" font-family="Arial" font-size="14" font-weight="bold">HubSpot Suite:</text>
+        <text x="40" y="105" fill="white" font-family="Arial" font-size="14">• HubSpot Marketing</text>
+        <text x="40" y="130" fill="white" font-family="Arial" font-size="14">• HubSpot Sales</text>
+        <text x="40" y="155" fill="white" font-family="Arial" font-size="14">• HubSpot Service</text>
+
+        <text x="20" y="195" fill="white" font-family="Arial" font-size="14" font-weight="bold">Sales Tools:</text>
+        <text x="40" y="220" fill="white" font-family="Arial" font-size="14">• Calendly</text>
+        <text x="40" y="245" fill="white" font-family="Arial" font-size="14">• HubSpot SMS</text>
+        <text x="40" y="270" fill="white" font-family="Arial" font-size="14">• WhatsApp Business</text>
+    </g>
+
+    <!-- Project Management -->
+    <g transform="translate(1010,120)">
+        <rect width="300" height="320" rx="10" fill="url(#gradSecond)"/>
+        <text x="20" y="40" fill="white" font-family="Arial" font-size="18" font-weight="bold">
+            Project Management
+        </text>
+
+        <text x="20" y="80" fill="white" font-family="Arial" font-size="14" font-weight="bold">Project Tools:</text>
+        <text x="40" y="105" fill="white" font-family="Arial" font-size="14">• Email</text>
+        <text x="40" y="130" fill="white" font-family="Arial" font-size="14">• Slack</text>
+        <text x="40" y="155" fill="white" font-family="Arial" font-size="14">• Google Workspace</text>
+    </g>
+</svg>
